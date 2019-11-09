@@ -12,5 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('search');
 });
+
+Route::get('search', 'ClassroomController@search')->name('search');
