@@ -41,20 +41,23 @@
             <!-- Main content -->
             <section class="content">
                 <div class="container">
+                    <header class="text-center">
+                        <h1>{{ $calendar->nd }} ~ {{ $calendar->nd + 1 }}学年度{{ $calendar->term->mc }}学期在用教室查询</h1>
+                    </header>
                     <form action="{{ route('search') }}" method="get">
                         <div class="row justify-content-center">
                             <div class="col-md-8">
                                 <div class="input-group">
                                     <select id="campus" name="campus" class="custom-select">
                                         <option value="all">全部校区</option>
-                                        @foreach ($campuses as $campus)
-                                            <option value="{{ $campus->dm }}">{{ $campus->mc }}</option>
+                                        @foreach ($campuses as $item)
+                                            <option value="{{ $item->dm }}" {{ $item->dm == $campus ? 'selected' : ''}}>{{ $item->mc }}</option>
                                         @endforeach
                                     </select>
                                     <select id="building" name="building" class="custom-select">
                                         <option value="all" class="all {{ $campuses->implode('dm', ' ') }}">全部教学楼</option>
-                                        @foreach ($buildings as $building)
-                                            <option value="{{ $building->dm }}" class="all {{ $building->xqh }}">{{ $building->mc }}</option>
+                                        @foreach ($buildings as $item)
+                                            <option value="{{ $item->dm }}" class="all {{ $item->xqh }}" {{ $item->dm == $building ? 'selected' : ''}}>{{ $item->mc }}</option>
                                         @endforeach
                                     </select>
                                     <select id="week" name="week" class="custom-select">
@@ -64,7 +67,7 @@
                                         @endforeach
                                     </select>
                                     <div class="input-group-append">
-                                        <button class="btn btn-primary" type="submit" id="search">检索</button>
+                                        <button class="btn btn-primary" type="submit" id="search" name="search" value="search">检索</button>
                                     </div>
                                 </div>
                             </div>
@@ -80,13 +83,19 @@
                                                 <th>校区</th>
                                                 <th>教学楼</th>
                                                 <th>教室名称</th>
-                                                <th>课程名称</th>
-                                                <th>任课教师</th>
                                                 <th>周次</th>
                                                 <th>节次</th>
                                                 <th>使用目的</th>
                                             </thead>
                                             <tbody>
+                                                @foreach ($usings as $item)
+                                                    <td>{{ $item->classroom->campus->mc }}</td>
+                                                    <td>{{ $item->classroom->building->mc }}</td>
+                                                    <td>{{ $item->classroom->mc }}</td>
+                                                    <td>{{ $item->ksz }} ~ {{ $item->jsz }}</td>
+                                                    <td>{{ $item->jc }}</td>
+                                                    <td>{{ $item->md }}</td>
+                                                @endforeach
                                             </tbody>
                                         </table>
                                     </div>
