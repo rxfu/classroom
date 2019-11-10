@@ -44,10 +44,27 @@
                     <form action="{{ route('search') }}" method="get">
                         <div class="row justify-content-center">
                             <div class="col-md-8">
-                                <div class="input-group my-3">
-                                    <input type="text" name="keyword" id="keyword" class="form-control form-control-lg" placeholder="数据库检索"" aria-label="数据库检索"" aria-describedby="btnSearch" value="{{ old('keyword', $keyword) }}">
+                                <div class="input-group">
+                                    <select id="campus" name="campus" class="custom-select">
+                                        <option value="all">全部校区</option>
+                                        @foreach ($campuses as $campus)
+                                            <option value="{{ $campus->dm }}">{{ $campus->mc }}</option>
+                                        @endforeach
+                                    </select>
+                                    <select id="building" name="building" class="custom-select">
+                                        <option value="all" class="all {{ $campuses->implode('dm', ' ') }}">全部教学楼</option>
+                                        @foreach ($buildings as $building)
+                                            <option value="{{ $building->dm }}" class="all {{ $building->xqh }}">{{ $building->mc }}</option>
+                                        @endforeach
+                                    </select>
+                                    <select id="week" name="week" class="custom-select">
+                                        <option value="all">全部时间</option>
+                                        @foreach (range(1, 7) as $week)
+                                            <option value="{{ $week }}">{{ config('setting.weeks.' . $week) }}</option>
+                                        @endforeach
+                                    </select>
                                     <div class="input-group-append">
-                                        <button class="btn btn-primary btn-lg" type="submit" id="search">{{ __('Search') }}</button>
+                                        <button class="btn btn-primary" type="submit" id="search">检索</button>
                                     </div>
                                 </div>
                             </div>
@@ -57,119 +74,22 @@
                             <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-body">
-                                        <dl class="row">
-                                            <dt class="col-sm-2 text-right">首字母</dt>
-                                            <dd class="col-sm-10">
-                                                @foreach (range('A', 'Z') as $item)
-                                                    <div class="form-check form-check-inline">
-                                                        <input type="checkbox" name="letters[]" id="{{ $item }}" class="form-check-input" value="{{ $item }}" {{ !is_null($letters) && in_array($item, $letters) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="{{ $item }}">{{ $item }}</label>
-                                                    </div>
-                                                @endforeach
-                                                <div class="form-check form-check-inline">
-                                                    <input type="checkbox" name="letters[]" id="number" class="form-check-input" value="number" {{ !is_null($letters) && in_array('number', $letters) ? 'checked' : ''}}>
-                                                    <label class="form-check-label" for="number">0~9</label>
-                                                </div>
-                                            </dd>
-                                        </dl>
-                                        <dl class="row">
-                                            <dt class="col-sm-2 text-right">学科</dt>
-                                            <dd class="col-sm-10">
-                                                @foreach ($subjects as $item)
-                                                    <div class="form-check form-check-inline">
-                                                        <input type="checkbox" name="subjects[]" id="subject-{{ $item->id }}" class="form-check-input" value="{{ $item->id }}" {{ !is_null($subject) && in_array($item->id, $subject) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="subject-{{ $item->id }}">{{ $item->name }}</label>
-                                                    </div>
-                                                @endforeach
-                                            </dd>
-                                        </dl>
-                                        <dl class="row">
-                                            <dt class="col-sm-2 text-right">内容类型</dt>
-                                            <dd class="col-sm-10">
-                                                @foreach ($types as $item)
-                                                    <div class="form-check form-check-inline">
-                                                        <input type="checkbox" name="types[]" id="type-{{ $item->id }}" class="form-check-input" value="{{ $item->id }}" {{ !is_null($type) && in_array($item->id, $type) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="type-{{ $item->id }}">{{ $item->name }}</label>
-                                                    </div>
-                                                @endforeach
-                                            </dd>
-                                        </dl>
-                                        <dl class="row">
-                                            <dt class="col-sm-2 text-right">语种</dt>
-                                            <dd class="col-sm-10">
-                                                @foreach ($languages as $item)
-                                                    <div class="form-check form-check-inline">
-                                                        <input type="checkbox" name="languages[]" id="language-{{ $item->id }}" class="form-check-input" value="{{ $item->id }}" {{ !is_null($language) && in_array($item->id, $language) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="language-{{ $item->id }}">{{ $item->name }}</label>
-                                                    </div>
-                                                @endforeach
-                                            </dd>
-                                        </dl>
-                                        <dl class="row">
-                                            <dt class="col-sm-2 text-right">状态</dt>
-                                            <dd class="col-sm-10">
-                                                <div class="form-check form-check-inline">
-                                                    <input type="checkbox" name="statuses[]" id="trial" class="form-check-input" value="0" {{ !is_null($status) && in_array(0, $status) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="trial">{{ __('Trial') }}</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input type="checkbox" name="statuses[]" id="normal" class="form-check-input" value="1" {{ !is_null($status) && in_array(1, $status) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="normal">{{ __('Normal') }}</label>
-                                                </div>
-                                                <div class="form-check form-check-inline">
-                                                    <input type="checkbox" name="statuses[]" id="open" class="form-check-input" value="2" {{ !is_null($status) && in_array(2, $status) ? 'checked' : '' }}>
-                                                    <label class="form-check-label" for="open">{{ __('Opening') }}</label>
-                                                </div>
-                                            </dd>
-                                        </dl>
+                                        <h3 class="card-title">常规使用信息</h3>
+                                        <table id="usingTable" class="table table-striped">
+                                            <thead>
+                                                <th>校区</th>
+                                                <th>教学楼</th>
+                                                <th>教室名称</th>
+                                                <th>课程名称</th>
+                                                <th>任课教师</th>
+                                                <th>周次</th>
+                                                <th>节次</th>
+                                                <th>使用目的</th>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
                                     </div>
-
-                                    <table id="itemsTable" class="table table-striped datatable">
-                                        <thead>
-                                            <th width="30%">数据库名称</th>
-                                            <th width="40%">数据库简介</th>
-                                            <th>访问地址</th>
-                                            <th width="8%">状态</th>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($databases as $database)
-                                                <tr>
-                                                    <td>
-                                                        <a href="{{ route('database.show', $database) }}" title="{{ $database->name }}">{{ $database->name }}</a>
-                                                    </td>
-                                                    <td>
-                                                        @empty($database->brief)
-                                                            {{ \Illuminate\Support\Str::limit($database->content, 120) }}
-                                                        @else
-                                                            {{ $database->brief }}
-                                                        @endempty
-                                                    </td>
-                                                    <td>
-                                                        @unless (empty($database->remote_url))
-                                                            <div>
-                                                                远程包库：
-                                                                @foreach (explode('|', $database->remote_url) as $url)
-                                                                    <a href="{{ $url }}" title="{{ __('Link') . $loop->iteration }}" target="_blank">{{ __('Link') . $loop->iteration }}</a>
-                                                                @endforeach
-                                                            </div>
-                                                        @endunless
-                                                        @unless (empty($database->local_url))
-                                                            <div>
-                                                                本地镜像：
-                                                                @foreach (explode('|', $database->local_url) as $url)
-                                                                    <a href="{{ $url }}" title="{{ __('Link') . $loop->iteration }}" target="_blank">{{ __('Link') . $loop->iteration }}</a>
-                                                                @endforeach
-                                                            </div>
-                                                        @endunless
-                                                    </td>
-                                                    <td>{{ $database->present()->status }}</td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="justify-content-center">
-                                    {{ $databases->appends($_GET)->links() }}
-                                </div>
                                 </div>
                             </div>
                         </div>
@@ -190,11 +110,18 @@
     <!-- Scripts -->
     <!-- jQuery -->
     <script src="{{ asset('vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.chained.min.js') }}"></script>
     <!-- Bootstrap 4 -->
     <script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <!-- App -->
     <script src="{{ asset('js/app.js') }}"></script>
     <!-- Custom Scripts -->
     @stack('scripts')
+    
+    <script>
+    $(function() {
+        $('#building').chained('#campus');
+    });
+    </script>
 </body>
 </html>
