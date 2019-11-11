@@ -41,9 +41,9 @@
             <!-- Main content -->
             <section class="content">
                 <div class="container">
-                    <header class="text-center">
+                    <nav class="nav justify-content-center">
                         <h1>{{ $calendar->nd }} ~ {{ $calendar->nd + 1 }}学年度{{ $calendar->term->mc }}学期在用教室查询</h1>
-                    </header>
+                    </nav>
                     <form action="{{ route('search') }}" method="get">
                         <div class="row justify-content-center">
                             <div class="col-md-8">
@@ -62,8 +62,8 @@
                                     </select>
                                     <select id="week" name="week" class="custom-select">
                                         <option value="all">全部时间</option>
-                                        @foreach (range(1, 7) as $week)
-                                            <option value="{{ $week }}">{{ config('setting.weeks.' . $week) }}</option>
+                                        @foreach (range(1, 7) as $item)
+                                            <option value="{{ $item }}" {{ $item == $week ? 'selected' : '' }}>{{ config('setting.weeks.' . $item) }}</option>
                                         @endforeach
                                     </select>
                                     <div class="input-group-append">
@@ -72,37 +72,41 @@
                                 </div>
                             </div>
                         </div>
+                    </form>
 
-                        <div class="row justify-content-center">
-                            <div class="col-md-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h3 class="card-title">常规使用信息</h3>
-                                        <table id="usingTable" class="table table-striped">
-                                            <thead>
-                                                <th>校区</th>
-                                                <th>教学楼</th>
-                                                <th>教室名称</th>
-                                                <th>周次</th>
-                                                <th>节次</th>
-                                                <th>使用目的</th>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($usings as $item)
+                    <div class="row justify-content-center">
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h3 class="card-title text-center">常规使用信息</h3>
+                                    <table id="usingTable" class="table table-striped">
+                                        <thead>
+                                            <th><i>#</i></th>
+                                            <th>校区</th>
+                                            <th>教学楼</th>
+                                            <th>教室名称</th>
+                                            <th>始末周次</th>
+                                            <th>始末节次</th>
+                                            <th>使用目的</th>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($usings as $item)
+                                                <tr>
+                                                    <td><i>{{ $loop->iteration }}</i></td>
                                                     <td>{{ $item->classroom->campus->mc }}</td>
                                                     <td>{{ $item->classroom->building->mc }}</td>
                                                     <td>{{ $item->classroom->mc }}</td>
-                                                    <td>{{ $item->ksz }} ~ {{ $item->jsz }}</td>
-                                                    <td>{{ $item->jc }}</td>
+                                                    <td>{{ $item->present()->b2eWeek }}</td>
+                                                    <td>{{ $item->present()->b2eSection }}</td>
                                                     <td>{{ $item->md }}</td>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                    </form>
+                    </div>
                 </div>
             </section>
         </div>

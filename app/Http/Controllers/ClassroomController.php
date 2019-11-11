@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use App\Using;
 use App\Campus;
 use App\Building;
@@ -25,7 +26,34 @@ class ClassroomController extends Controller
             $building = $request->input('building');
             $week = $request->input('week');
 
-            $usings = Using::whereNd($calendar->nd)->whereXq($calendar->xq)->get();
+            $usings = Using::whereNd($calendar->nd)->whereXq($calendar->xq);
+
+            if ('all' === $campus) {
+                $campusNumbers = $campuses->pluck('dm');
+            } else {
+                $campusNumbers[] = $campus;
+            }
+
+            if ('all' === $building) {
+                $buildingNumbers = $buildings->pluck('jsh');
+            } else {
+                $buildingNumbers[] = $building;
+            }
+
+            foreach ($campusNumbers as $cnum) {
+                foreach ($buildingNumbers as $bnum) {
+                    $usings = $usings->where('jsh', 'LIKE', $cnum . $bnum . '%');
+                }
+            }
+
+            if ('all' !== $week) {
+                $usings = $usings->whereZc($week);
+            }
+
+            $usings = $usings->select('jsh', 'nd', 'xq', 'ksz', 'jsz', 'zc', 'md', DB::raw("string_agg(CAST(jc AS text), ',') AS jc"))
+                ->groupBy('jsh', 'nd', 'xq', 'ksz', 'jsz', 'zc', 'md')
+                ->orderBy('jsh')
+                ->get();
         }
 
         return view('search', compact('campuses', 'buildings', 'calendar', 'campus', 'building', 'week', 'usings'));

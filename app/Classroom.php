@@ -9,7 +9,7 @@ class Classroom extends Model
     public $table = 'js_jsxx';
 
     public function campus() {
-        return $this->belongsTo('App\Campus', 'xqh', 'xqh');
+        return $this->belongsTo('App\Campus', 'xqh', 'dm');
     }
 
     public function building() {
