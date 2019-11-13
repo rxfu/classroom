@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use DB;
+use App\Temp;
 use App\Using;
 use App\Campus;
 use App\Building;
@@ -18,13 +19,16 @@ class ClassroomController extends Controller
         $buildings = Building::where('dm', '<>', '')->get();
 
         $today = Carbon::createFromDate(2017, 11, 13);
-        $calendar = Calendar::where('rq', '<=', $today)->orderBy('rq', 'desc')->firstOrFail();
+        $calendar = Calendar::where('rq', '<', $today)->orderBy('rq', 'desc')->firstOrFail();
         $currentWeek = $today->diffInWeeks($calendar->rq) + 1;
 
         $campus = $request->has('campus') ? $request->input('campus') : null;
         $building = $request->has('building') ? $request->input('building') : null;
         $week = $request->has('week') ? $request->input('week') : $today->isoweekday();
 
+        /*
+         * 常规教室使用情况
+         */
         $usings = Using::with(['classroom', 'classroom.campus', 'classroom.building'])
             ->whereNd($calendar->nd)
             ->whereXq($calendar->xq)
@@ -60,6 +64,40 @@ class ClassroomController extends Controller
             ->orderBy('jsh')
             ->get();
 
-        return view('search', compact('campuses', 'buildings', 'calendar', 'campus', 'building', 'week', 'usings'));
+        /*
+         * 临时教室使用情况
+         */
+        $temp = Temp::with(['classroom', 'classroom.campus', 'classroom.building'])
+            ->where('syrq', '>=', $calendar->rq)
+            ->where('kszc', '<=', $currentWeek)
+            ->where('jszc', '>=', $currentWeek);
+
+        if ('all' === $campus) {
+            $campusNumbers = $campuses->pluck('dm');
+        } else {
+            $campusNumbers[] = $campus;
+        }
+
+        if ('all' === $building) {
+            $buildingNumbers = $buildings->pluck('dm');
+        } else {
+            $buildingNumbers[] = $building;
+        }
+
+        $temp = $temp->where(function ($query) use ($campusNumbers, $buildingNumbers) {
+            foreach ($campusNumbers as $cnum) {
+                foreach ($buildingNumbers as $bnum) {
+                    $query = $query->orWhere('jsh', 'LIKE', $cnum . $bnum . '%');
+                }
+            }
+        });
+
+        if ('all' !== $week) {
+            $temp = $temp->whereXqj($week);
+        }
+
+        $temp = $temp->wherePzzt(1)->orderBy('jsh')->get();
+
+        return view('search', compact('campuses', 'buildings', 'calendar', 'campus', 'building', 'week', 'usings', 'temp'));
     }
 }

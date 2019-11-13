@@ -109,6 +109,46 @@
                     </div>
                 </div>
             @endif
+
+            @if (!empty($temp))
+                <div class="row justify-content-center">
+                    <div class="col">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title text-center">临时教室使用信息</h3>
+                                <table id="usingTable" class="table table-striped">
+                                    <thead>
+                                        <th><i>#</i></th>
+                                        <th>校区</th>
+                                        <th>教学楼</th>
+                                        <th>教室名称</th>
+                                        <th>始末周次</th>
+                                        <th>始末节次</th>
+                                        <th>使用目的</th>
+                                        <th>申请人</th>
+                                        <th>使用日期</th>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($temp as $item)
+                                            <tr>
+                                                <td><i>{{ $loop->iteration }}</i></td>
+                                                <td>{{ $item->classroom->campus->mc }}</td>
+                                                <td>{{ $item->classroom->building->mc }}</td>
+                                                <td>{{ $item->classroom->mc }}</td>
+                                                <td>{{ $item->present()->b2eWeek }}</td>
+                                                <td>{{ $item->present()->b2eSection }}</td>
+                                                <td>{{ $item->sy }}</td>
+                                                <td>{{ $item->xm }}</td>
+                                                <td>{{ $item->syrq }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
         </div>
     </section>
     

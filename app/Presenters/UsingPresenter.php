@@ -15,9 +15,10 @@ class UsingPresenter extends Presenter
         }
     }
 
-    public function b2eSection() {
+    public function b2eSection()
+    {
         $sections = explode(',', $this->jc);
-        
+
         return max($sections) === min($sections) ? max($sections) : min($sections) . ' ~ ' . max($sections);
     }
 }
