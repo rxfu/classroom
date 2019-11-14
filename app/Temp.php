@@ -9,9 +9,9 @@ class Temp extends Model
 {
     use PresentableTrait;
 
-    public $table = 'js_lsjs';
+    public $table = 'js_sq';
 
-    protected $present = 'App\Presenters\TempPresenter';
+    protected $presenter = 'App\Presenters\TempPresenter';
 
     public function classroom()
     {

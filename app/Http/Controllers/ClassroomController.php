@@ -18,7 +18,7 @@ class ClassroomController extends Controller
         $campuses = Campus::where('dm', '<>', '')->get();
         $buildings = Building::where('dm', '<>', '')->get();
 
-        $today = Carbon::createFromDate(2017, 11, 13);
+        $today = Carbon::now();
         $calendar = Calendar::where('rq', '<', $today)->orderBy('rq', 'desc')->firstOrFail();
         $currentWeek = $today->diffInWeeks($calendar->rq) + 1;
 
@@ -68,9 +68,9 @@ class ClassroomController extends Controller
          * 临时教室使用情况
          */
         $temp = Temp::with(['classroom', 'classroom.campus', 'classroom.building'])
-            ->where('syrq', '>=', $calendar->rq)
-            ->where('kszc', '<=', $currentWeek)
-            ->where('jszc', '>=', $currentWeek);
+            ->where('syrq', '=', $today->subDays(($today->isoweekday() - $week)))
+            ->where('ksz', '<=', $currentWeek)
+            ->where('jsz', '>=', $currentWeek);
 
         if ('all' === $campus) {
             $campusNumbers = $campuses->pluck('dm');
@@ -93,7 +93,7 @@ class ClassroomController extends Controller
         });
 
         if ('all' !== $week) {
-            $temp = $temp->whereXqj($week);
+            $temp = $temp->whereZc($week);
         }
 
         $temp = $temp->wherePzzt(1)->orderBy('jsh')->get();
