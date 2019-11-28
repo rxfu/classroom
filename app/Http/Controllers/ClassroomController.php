@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use DB;
-use App\Temp;
 use App\Using;
 use App\Campus;
 use App\Building;
@@ -65,8 +64,9 @@ class ClassroomController extends Controller
             ->get();
 
         /*
-         * 临时教室使用情况
+         * 临时教室申请情况
          */
+        /* 
         $temp = Temp::with(['classroom', 'classroom.campus', 'classroom.building'])
             ->where('syrq', '=', $today->subDays(($today->isoweekday() - $week)))
             ->where('ksz', '<=', $currentWeek)
@@ -97,7 +97,7 @@ class ClassroomController extends Controller
         }
 
         $temp = $temp->wherePzzt(1)->orderBy('jsh')->get();
-
-        return view('search', compact('campuses', 'buildings', 'calendar', 'campus', 'building', 'week', 'usings', 'temp'));
+        */
+        return view('search', compact('campuses', 'buildings', 'calendar', 'campus', 'building', 'week', 'usings'));
     }
 }
